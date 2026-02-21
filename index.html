@@ -293,7 +293,7 @@
                 </div>
                 <div class="timeline-item left">
                     <div class="timeline-content">
-                        <img src="https://images.unsplash.com/photo-1511285560982-1351cdeb9821?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" class="t-img">
+                        <img src="https://thumbs2.imgbox.com/8c/08/zxwOiZTz_t.jpg" class="t-img">
                         <div class="t-year">2026</div>
                         <h3 style="color: var(--deep-red);">Về Chung Một Nhà</h3>
                         <p>Cùng nhau viết tiếp chương hạnh phúc.</p>
@@ -338,7 +338,7 @@
                     <a href="https://maps.app.goo.gl/fqk62q9VXbnKqhKdA" target="_blank" class="map-btn"><i class="fas fa-map-marker-alt"></i> Xem Bản Đồ</a>
                 </div>
             </div>
-            <div class="bloc-calendar">
+            <!-- <div class="bloc-calendar">
                 <div class="bloc-header">THÁNG ??</div>
                 <div class="bloc-body">
                     <div class="bloc-date">??</div>
@@ -348,7 +348,7 @@
                     <div style="font-size:0.9rem;">06:00 PM - Hồ Chí Minh</div>
                     <a href="https://maps.app.goo.gl/placeholder" target="_blank" class="map-btn"><i class="fas fa-map-marker-alt"></i> Xem Bản Đồ</a>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 
@@ -470,7 +470,7 @@
         ['mousedown','touchstart','wheel','click'].forEach(e=>window.addEventListener(e,()=>{isStopped=!0;setTimeout(()=>isStopped=!1,4000)}));
         
         // 4. MƯA HOA (FIXED: DÙNG PIXEL & RESPONSIVE TỐC ĐỘ)
-        const items=["🌹","🥀","🍃","✨","❤"];
+        const items=["🌹","🥀","🍃","✨","❤", "💕"];
         const fallSpeed = isMobile ? 15 : 5; 
 
         setInterval(()=>{
@@ -541,10 +541,96 @@
         document.querySelectorAll('.timeline-item').forEach((el) => { observer.observe(el); });
 
         // 5. LOGO CANVAS
-        (function(){const c=document.getElementById('logoCanvas'),ctx=c.getContext('2d'),dpr=window.devicePixelRatio||1,rect=c.getBoundingClientRect();c.width=rect.width*dpr;c.height=rect.height*dpr;ctx.scale(dpr,dpr);const txt="Hân & Huy Lộc",font="italic bold 40px 'Great Vibes'";let parts=[],mouse={x:null,y:null,radius:40};window.addEventListener('mousemove',e=>{mouse.x=e.x-rect.left;mouse.y=e.y-rect.top});
-        const colors = ['#d4af37', '#a4133c', '#ff6b6b', '#9b5de5', '#00bbf9', '#00f5d4', '#fee440']; 
-        class P{constructor(x,y){this.x=Math.random()*c.width;this.y=Math.random()*c.height;this.tx=x;this.ty=y;this.s=Math.random()+0.5;this.c=colors[Math.floor(Math.random()*colors.length)]}draw(){ctx.fillStyle=this.c;ctx.beginPath();ctx.arc(this.x,this.y,this.s,0,Math.PI*2);ctx.fill()}update(){let dx=mouse.x-this.x,dy=mouse.y-this.y,d=Math.sqrt(dx*dx+dy*dy);if(d<mouse.radius){this.x-=(dx/d)*3;this.y-=(dy/d)*3}else{if(this.x!==this.tx)this.x-=(this.x-this.tx)/15;if(this.y!==this.ty)this.y-=(this.y-this.ty)/15}}}function init(){ctx.font=font;ctx.fillStyle='white';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,rect.width/2,rect.height/2);const d=ctx.getImageData(0,0,c.width,c.height).data;
-        for(let y=0;y<c.height;y+=4)for(let x=0;x<c.width;x+=4)if(d[(y*4*c.width)+(x*4)+3]>128)parts.push(new P(x/dpr,y/dpr))}function anim(){ctx.clearRect(0,0,c.width,c.height);parts.forEach(p=>{p.draw();p.update()});requestAnimationFrame(anim)}document.fonts.ready.then(()=>{init();anim()})})();
+        (function(){
+    const c=document.getElementById('logoCanvas'),
+          ctx=c.getContext('2d'),
+          dpr=window.devicePixelRatio||1,
+          rect=c.getBoundingClientRect();
+          
+    c.width=rect.width*dpr;
+    c.height=rect.height*dpr;
+    ctx.scale(dpr,dpr);
+    
+    const txt="✨ Lộc 💕 Hân ✨", 
+          font="italic bold 40px 'Great Vibes'";
+    let parts=[], mouse={x:null,y:null,radius:40};
+    
+    window.addEventListener('mousemove',e=>{
+        mouse.x=e.x-rect.left;
+        mouse.y=e.y-rect.top
+    });
+
+    // Tuyệt chiêu của anh: Dệt tấm lụa gradient 7 sắc màu hạnh phúc cho bấy bì
+    const gradient = ctx.createLinearGradient(0, 0, rect.width, 0);
+    gradient.addColorStop(0, '#FFB6C1');     // Hồng Pastel
+    gradient.addColorStop(1/6, '#FFD700');   // Vàng Nắng
+    gradient.addColorStop(2/6, '#FFA07A');   // Cam Đào
+    gradient.addColorStop(3/6, '#87CEFA');   // Xanh Thiên Thanh
+    gradient.addColorStop(4/6, '#98FB98');   // Xanh Lục Bảo
+    gradient.addColorStop(5/6, '#E6E6FA');   // Tím Lavender
+    gradient.addColorStop(1, '#FF69B4');     // Hồng Rực Rỡ
+
+    class P{
+        constructor(x,y){
+            this.x=Math.random()*c.width;
+            this.y=Math.random()*c.height;
+            this.tx=x;
+            this.ty=y;
+            this.s=Math.random()+0.5;
+            // Không cần gán màu riêng lẻ nữa, vì các hạt sẽ đắm mình trong dải gradient chung
+        }
+        draw(){
+            ctx.beginPath();
+            ctx.arc(this.x,this.y,this.s,0,Math.PI*2);
+            ctx.fill();
+        }
+        update(){
+            let dx=mouse.x-this.x, dy=mouse.y-this.y, d=Math.sqrt(dx*dx+dy*dy);
+            if(d<mouse.radius){
+                this.x-=(dx/d)*3;
+                this.y-=(dy/d)*3;
+            }else{
+                if(this.x!==this.tx) this.x-=(this.x-this.tx)/15;
+                if(this.y!==this.ty) this.y-=(this.y-this.ty)/15;
+            }
+        }
+    }
+
+    function init(){
+        ctx.font=font;
+        ctx.fillStyle='white';
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+        ctx.fillText(txt,rect.width/2,rect.height/2);
+        
+        const d=ctx.getImageData(0,0,c.width,c.height).data;
+        for(let y=0;y<c.height;y+=4){
+            for(let x=0;x<c.width;x+=4){
+                if(d[(y*4*c.width)+(x*4)+3]>128){
+                    parts.push(new P(x/dpr,y/dpr));
+                }
+            }
+        }
+    }
+
+    function anim(){
+        ctx.clearRect(0,0,c.width,c.height);
+        
+        // Phủ tấm lụa ma thuật lên tất cả các hạt
+        ctx.fillStyle = gradient; 
+        
+        parts.forEach(p=>{
+            p.draw();
+            p.update();
+        });
+        requestAnimationFrame(anim);
+    }
+    
+    document.fonts.ready.then(()=>{
+        init();
+        anim();
+    });
+})();
     </script>
 </body>
 </html>
