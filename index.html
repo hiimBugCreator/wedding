@@ -275,28 +275,54 @@
         <div class="glass-paper">
             <h2 class="section-title">Hành Trình Yêu Thương</h2>
             <div class="timeline">
+                
+                <!-- Mốc 1: 2017 -->
                 <div class="timeline-item left">
                     <div class="timeline-content">
-                        <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" class="t-img">
-                        <div class="t-year">2020</div>
-                        <h3 style="color: var(--deep-red);">Lần Đầu Gặp Gỡ</h3>
-                        <p>Định mệnh tại quán cà phê góc phố.</p>
+                        <img src="https://thumbs2.imgbox.com/53/f2/uT3lTCv6_t.jpg" class="t-img">
+                        <div class="t-year">2017</div>
+                        <h3 style="color: var(--deep-red);">Lần Đầu Chạm Mặt</h3>
+                        <p>Anh bạn lớp bên "chui lọt" vào trại của lớp tui dịp cắm trại trường cấp 3. Vài tuần sau tự nhiên thấy lời mời kết bạn Facebook, món quà đầu tiên, định mệnh bắt đầu từ đây!</p>
                     </div>
                 </div>
+
+                <!-- Mốc 2: 2018 -->
                 <div class="timeline-item right">
                     <div class="timeline-content">
-                        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" class="t-img">
-                        <div class="t-year">2023</div>
-                        <h3 style="color: var(--deep-red);">Lời Tỏ Tình</h3>
-                        <p>Dưới ánh nến lung linh đêm Giáng Sinh.</p>
+                        <img src="https://thumbs2.imgbox.com/e3/80/ruwHnpBN_t.jpg" class="t-img">
+                        <div class="t-year">21.07.2018</div>
+                        <h3 style="color: var(--deep-red);">"Đáng yêu hong?"</h3>
+                        <p>Từ những lần mượn sách, nhờ giải bài tập giùm... đến tin nhắn tỏ tình siêu ngố qua Messenger. Tụi mình chính thức nắm tay nhau từ ngày đó.</p>
                     </div>
                 </div>
+
+                <!-- Mốc 3: 2020 -->
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <img src="https://thumbs2.imgbox.com/72/f7/hI9oZ4Xx_t.jpg" class="t-img">
+                        <div class="t-year">2020</div>
+                        <h3 style="color: var(--deep-red);">Sài Gòn & Tuổi Trẻ</h3>
+                        <p>Cùng nhau đón sinh nhật tuổi 18 đầy hoài bão. Lên Sài Gòn, anh chở em rong ruổi khắp các con hẻm tìm phòng trọ. Thanh xuân có anh luôn kề bên.</p>
+                    </div>
+                </div>
+
+                <!-- Mốc 4: Những chuyến đi -->
+                <div class="timeline-item right">
+                    <div class="timeline-content">
+                        <img src="https://thumbs2.imgbox.com/a3/e0/swUoMhIX_t.jpg" class="t-img">
+                        <div class="t-year">Kỷ Niệm</div>
+                        <h3 style="color: var(--deep-red);">Cùng Nhau Rong Ruổi</h3>
+                        <p>Nhớ mãi chuyến xe máy đi Mũi Né trong đêm lạnh run người, rồi những ngày rong chơi Mongo Land, đi săn mây Đà Lạt dưới cái lạnh 13 độ...</p>
+                    </div>
+                </div>
+
+                <!-- Mốc 5: 2026 -->
                 <div class="timeline-item left">
                     <div class="timeline-content">
                         <img src="https://thumbs2.imgbox.com/8c/08/zxwOiZTz_t.jpg" class="t-img">
-                        <div class="t-year">2026</div>
-                        <h3 style="color: var(--deep-red);">Về Chung Một Nhà</h3>
-                        <p>Cùng nhau viết tiếp chương hạnh phúc.</p>
+                        <div class="t-year">22.03.2026</div>
+                        <h3 style="color: var(--deep-red);">Happy Ending</h3>
+                        <p>Khép lại 8 năm thanh xuân rực rỡ, tụi tui mở ra một chương mới: Về chung một nhà, và từ nay gọi nhau là "Vợ - Chồng".</p>
                     </div>
                 </div>
             </div>
@@ -530,11 +556,25 @@
             .finally(() => { btn.innerText = originalText; btn.disabled = false; });
         }
 
-        function openLightbox(img){
-            document.getElementById('lightboxModal').style.display='flex';
-            // Đã thay img.src thành img.getAttribute('data-full')
-            document.getElementById('lightboxImage').src = img.getAttribute('data-full');
-            isStopped = !0;
+        function openLightbox(img) {
+            var modal = document.getElementById('lightboxModal');
+            var lightboxImg = document.getElementById('lightboxImage');
+            var fullSrc = img.getAttribute('data-full');
+
+            // 1. Mở lightbox và lập tức hiện ảnh thu nhỏ (ảnh thumb đã load sẵn)
+            modal.style.display = 'flex';
+            lightboxImg.src = img.src; 
+
+            // 2. Tạo một đối tượng Image ảo để tải ngầm ảnh gốc chất lượng cao
+            var preloader = new Image();
+            preloader.onload = function() {
+                // 3. Chỉ khi nào ảnh gốc tải xong 100%, mới tráo đổi vào lightbox
+                lightboxImg.src = fullSrc;
+            };
+            preloader.src = fullSrc; // Kích hoạt quá trình tải ngầm
+
+            // Dừng auto-scroll khi đang xem ảnh
+            isStopped = !0; 
         }
         
         const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); }); }, { threshold: 0.2 });
