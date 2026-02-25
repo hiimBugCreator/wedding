@@ -541,102 +541,94 @@
             setTimeout(()=>e.remove(), (fallSpeed+5)*1000)
         },400);
 
-        // 5. BÌNH LUẬN NỔI & GET DATA
+        // 5. BÌNH LUẬN NỔI & GET DATA (CHẠY TUẦN TỰ & NHANH HƠN)
         let wishesPool = [];
+        let currentWishIndex = 0; // Thêm biến đếm để chạy tuần tự
 
         function addFloatingComment(n, m, isNew = !1) {
             const l = document.getElementById('livestream-layer');
-            if(!l) return 0; // Trả về 0 để hàm spawn biết mà xử lý
+            if(!l) return 0; 
 
-            // Cập nhật lại trạng thái mobile realtime để responsive tốt hơn
             const currentIsMobile = window.innerWidth < 768;
-            const floatSpeed = currentIsMobile ? 20 : 15; 
+            // Đã giảm tốc độ xuống để chạy lướt nhanh hơn (Mobile: 10s, PC: 8s)
+            const commentFloatSpeed = currentIsMobile ? 10 : 8; 
 
             const e = document.createElement('div');
             e.classList.add('floating-comment');
-            // Căn chỉnh icon tim lên trên cùng phòng trường hợp text dài rớt nhiều dòng
             e.innerHTML = `<i class="fas fa-heart" style="color:var(--deep-red); margin-top: 4px;"></i> <div><b>${n}:</b> ${m}</div>`;
             
-            // Tùy chỉnh CSS trực tiếp để box to hơn và rớt dòng cho bình luận dài
             e.style.whiteSpace = 'normal'; 
             e.style.maxWidth = currentIsMobile ? '85vw' : '300px'; 
-            e.style.width = 'max-content'; // Fix lỗi width nhỏ: Ép khung phải mở rộng theo chữ
+            e.style.width = 'max-content'; 
             e.style.padding = '12px 20px'; 
             e.style.lineHeight = '1.4';
             e.style.alignItems = 'flex-start';
 
-            const duration = (Math.random() * 10 + floatSpeed);
+            // Giảm độ trễ random để các luồng chữ chạy đều tốc độ với nhau hơn
+            const duration = (Math.random() * 3 + commentFloatSpeed);
 
             if (currentIsMobile) {
-                // --- Ở MOBILE: CHẠY NGANG TỪ PHẢI SANG TRÁI SÁT ĐÁY MÀN HÌNH ---
-                e.style.animation = 'none'; // Tắt animation trôi dọc mặc định của CSS
-                e.style.top = 'auto'; // Hủy vị trí top
-                // Nằm ngẫu nhiên sát mép dưới (cách đáy từ 10px đến 40px)
+                e.style.animation = 'none'; 
+                e.style.top = 'auto'; 
                 e.style.bottom = Math.floor(Math.random() * 30 + 10) + "px"; 
-                
-                // Fix lỗi box bị ép bẹp hẹp hẹp cao cao: Đặt left 0 để browser tính đúng width trước
                 e.style.left = '0px'; 
                 l.appendChild(e);
 
-                // Tạo animation trượt ngang bằng JavaScript
                 e.animate([
-                    { transform: `translateX(${window.innerWidth}px)`, opacity: 0 }, // Giấu ra ngoài màn hình bên phải
+                    { transform: `translateX(${window.innerWidth}px)`, opacity: 0 }, 
                     { opacity: 1, offset: 0.1 },
                     { opacity: 1, offset: 0.9 },
-                    { transform: `translateX(-100%)`, opacity: 0 } // Trôi hẳn qua mép TRÁI (100% của chính nó)
+                    { transform: `translateX(-100%)`, opacity: 0 } 
                 ], {
                     duration: duration * 1000,
                     fill: 'forwards'
                 });
             } else {
-                // --- Ở DESKTOP: CHẠY DỌC NHƯ CŨ ---
                 e.style.left = Math.random() * (window.innerWidth - 150) + "px";
                 e.style.animationDuration = duration + "s";
                 l.appendChild(e);
             }
 
-            // Tự động xóa element để giải phóng bộ nhớ
             setTimeout(() => e.remove(), (duration + 2) * 1000);
-            
-            return duration; // Trả về thời gian thực tế của bình luận này
+            return duration; 
         }
 
-        // Tải lời chúc từ Google Sheet khi vào trang
+        const SCRIPT_URL = 'DÁN_LINK_GOOGLE_SCRIPT_CỦA_CHỒNG_VÀO_ĐÂY'; 
         if (typeof SCRIPT_URL !== 'undefined' && SCRIPT_URL.includes("http")) {
             fetch(SCRIPT_URL)
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'success' && data.data.length > 0) {
-                    // Trộn dữ liệu thật vào pool
                     data.data.forEach(row => wishesPool.push({name: row[1], msg: row[2]}));
                 }
             })
             .catch(err => console.log("Chưa kết nối DB"));
         }
 
-        // Dùng hàm đệ quy thay cho setInterval để kiểm soát khoảng cách xuất hiện
         function spawnComment() {
-            let nextDelay = 3500; // Mặc định 3.5s cho Desktop
+            let nextDelay = 2000; // PC chạy dồn dập hơn (cách nhau 2s)
             const currentIsMobile = window.innerWidth < 768;
 
             if (wishesPool.length > 0) {
-                const r = wishesPool[Math.floor(Math.random() * wishesPool.length)];
+                // Lấy bình luận THEO THỨ TỰ TUẦN TỰ
+                const r = wishesPool[currentWishIndex];
                 const duration = addFloatingComment(r.name, r.msg);
                 
+                // Tăng index, nếu hết danh sách thì quay lại từ đầu
+                currentWishIndex++;
+                if (currentWishIndex >= wishesPool.length) {
+                    currentWishIndex = 0;
+                }
+                
                 if (currentIsMobile && duration > 0) {
-                    // Ở mobile: Đợi bình luận hiện tại chạy được 60% thời gian (đã trôi qua nửa màn hình)
-                    // rồi mới cho bình luận tiếp theo xuất hiện
-                    nextDelay = (duration * 1000) * 0.6; 
+                    // Mobile: Đợi bình luận trước chạy được 45% quãng đường là đẻ ra cái mới
+                    nextDelay = (duration * 1000) * 0.45; 
                 }
             } else {
-                // Nếu mảng lời chúc chưa tải xong, kiểm tra lại sau 1s
                 nextDelay = 1000;
             }
-
             setTimeout(spawnComment, nextDelay);
         }
-
-        // Bắt đầu vòng lặp
         spawnComment();
         
         // --- SEND WISH ---
