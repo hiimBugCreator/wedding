@@ -198,7 +198,10 @@
         /* RESPONSIVE */
         @media (max-width: 768px) {
             .envelope-wrapper { transform: scale(0.85); }
-            h1.hero-title { font-size: 3.5rem; }
+            /* Tiêu đề tự động rớt 3 dòng trên Mobile */
+            h1.hero-title { font-size: 4.5rem; }
+            .hero-title .name-break { display: block; }
+            .hero-title .heart-break { display: block; font-size: 3rem; margin: -10px 0; }
             h2.section-title { font-size: 2.8rem; }
             .timeline::after { left: 20px; }
             .timeline-item { width: 100%; padding-left: 60px; padding-right: 15px; text-align: left; }
@@ -265,7 +268,11 @@
     <!-- HERO -->
     <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center;">
         <p style="letter-spacing: 5px; text-transform: uppercase; color: var(--gold); font-weight: bold;">Save The Date</p>
-        <h1 class="hero-title">Huy Lộc ❤ Ngọc Hân</h1>
+        <h1 class="hero-title">
+            <span class="name-break">Huy Lộc</span> 
+            <span class="heart-break">❤</span> 
+            <span class="name-break">Ngọc Hân</span>
+        </h1>
         <p style="font-family: 'Cormorant Garamond'; font-size: 2.5rem; margin: 10px 0; color: #333;">22 . 03 . 2026</p>
         <button class="btn-main" onclick="document.getElementById('story').scrollIntoView()">Xem Chuyện Tình</button>
     </div>
@@ -493,29 +500,32 @@
 
         function toggleMusic(){var m=document.getElementById("bgMusic"),i=document.getElementById("musicIcon");m.paused?(m.play(),i.classList.remove("fa-music"),i.classList.add("fa-pause")):(m.pause(),i.classList.remove("fa-pause"),i.classList.add("fa-music"))}
         
-        let scrollSpeed = 1; 
+        // --- FIXED AUTO-SCROLL LOGIC ---
+        let scrollSpeed = 1;
         let isStopped = false;
         let scrollTimer;
 
         function autoScroll() {
-            // Sử dụng documentElement.scrollHeight để tính chính xác chiều cao trên mobile
-            if (!isStopped && (window.scrollY + window.innerHeight) < document.documentElement.scrollHeight) {
-                window.scrollBy(0, scrollSpeed);
+            if (!isStopped) {
+                // Kiểm tra xem đã cuộn tới cuối trang chưa
+                if ((window.innerHeight + window.scrollY) < document.body.offsetHeight) {
+                    window.scrollBy(0, scrollSpeed);
+                }
             }
             requestAnimationFrame(autoScroll);
         }
 
-        // Ngừng cuộn khi khách chạm, vuốt hoặc lăn chuột
+        // Bắt mọi sự kiện tương tác để ngừng cuộn
         ['mousedown', 'touchstart', 'touchmove', 'wheel'].forEach(evt => {
             window.addEventListener(evt, () => {
                 isStopped = true;
-                clearTimeout(scrollTimer); // Reset lại bộ đếm nếu khách tiếp tục vuốt
+                clearTimeout(scrollTimer); // Reset bộ đếm nếu khách liên tục vuốt
                 scrollTimer = setTimeout(() => {
-                    isStopped = false; // Tự động cuộn lại sau 3.5 giây không thao tác
+                    isStopped = false; // Tự cuộn lại sau 3.5s không thao tác
                 }, 3500); 
             }, { passive: true });
         });
-        
+
         // 4. MƯA HOA (FIXED: DÙNG PIXEL & RESPONSIVE TỐC ĐỘ)
         const items=["🌹","🥀","🍃","✨","❤", "💕"];
         const fallSpeed = isMobile ? 15 : 5; 
