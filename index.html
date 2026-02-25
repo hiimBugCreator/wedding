@@ -541,70 +541,83 @@
             setTimeout(()=>e.remove(), (fallSpeed+5)*1000)
         },400);
 
-        // 5. BÌNH LUẬN NỔI & GET DATA (CHẠY TUẦN TỰ & NHANH HƠN)
+        // 5. BÌNH LUẬN NỔI & GET DATA
         let wishesPool = [];
         let currentWishIndex = 0; // Thêm biến đếm để chạy tuần tự
 
         function addFloatingComment(n, m, isNew = !1) {
             const l = document.getElementById('livestream-layer');
-            if(!l) return 0; 
+            if(!l) return 0; // Trả về 0 để hàm spawn biết mà xử lý
 
+            // Cập nhật lại trạng thái mobile realtime để responsive tốt hơn
             const currentIsMobile = window.innerWidth < 768;
-            // Đã giảm tốc độ xuống để chạy lướt nhanh hơn (Mobile: 10s, PC: 8s)
-            const commentFloatSpeed = currentIsMobile ? 10 : 8; 
+            // Đã giảm tốc độ xuống để chạy lướt nhanh hơn (Mobile: 12s, PC: 8s)
+            const floatSpeed = currentIsMobile ? 12 : 8; 
 
             const e = document.createElement('div');
             e.classList.add('floating-comment');
+            // Căn chỉnh icon tim lên trên cùng phòng trường hợp text dài rớt nhiều dòng
             e.innerHTML = `<i class="fas fa-heart" style="color:var(--deep-red); margin-top: 4px;"></i> <div><b>${n}:</b> ${m}</div>`;
             
+            // Tùy chỉnh CSS trực tiếp để box to hơn và rớt dòng cho bình luận dài
             e.style.whiteSpace = 'normal'; 
             e.style.maxWidth = currentIsMobile ? '85vw' : '300px'; 
-            e.style.width = 'max-content'; 
+            e.style.width = 'max-content'; // Fix lỗi width nhỏ: Ép khung phải mở rộng theo chữ
             e.style.padding = '12px 20px'; 
             e.style.lineHeight = '1.4';
             e.style.alignItems = 'flex-start';
 
-            // Giảm độ trễ random để các luồng chữ chạy đều tốc độ với nhau hơn
-            const duration = (Math.random() * 3 + commentFloatSpeed);
+            // Giảm random để các luồng chữ chạy đều tốc độ với nhau hơn
+            const duration = (Math.random() * 3 + floatSpeed);
 
             if (currentIsMobile) {
-                e.style.animation = 'none'; 
-                e.style.top = 'auto'; 
+                // --- Ở MOBILE: CHẠY NGANG TỪ PHẢI SANG TRÁI SÁT ĐÁY MÀN HÌNH ---
+                e.style.animation = 'none'; // Tắt animation trôi dọc mặc định của CSS
+                e.style.top = 'auto'; // Hủy vị trí top
+                // Nằm ngẫu nhiên sát mép dưới (cách đáy từ 10px đến 40px)
                 e.style.bottom = Math.floor(Math.random() * 30 + 10) + "px"; 
+                
+                // Fix lỗi box bị ép bẹp hẹp hẹp cao cao: Đặt left 0 để browser tính đúng width trước
                 e.style.left = '0px'; 
                 l.appendChild(e);
 
+                // Tạo animation trượt ngang bằng JavaScript
                 e.animate([
-                    { transform: `translateX(${window.innerWidth}px)`, opacity: 0 }, 
+                    { transform: `translateX(${window.innerWidth}px)`, opacity: 0 }, // Giấu ra ngoài màn hình bên phải
                     { opacity: 1, offset: 0.1 },
                     { opacity: 1, offset: 0.9 },
-                    { transform: `translateX(-100%)`, opacity: 0 } 
+                    { transform: `translateX(-100%)`, opacity: 0 } // Trôi hẳn qua mép TRÁI (100% của chính nó)
                 ], {
                     duration: duration * 1000,
                     fill: 'forwards'
                 });
             } else {
+                // --- Ở DESKTOP: CHẠY DỌC NHƯ CŨ ---
                 e.style.left = Math.random() * (window.innerWidth - 150) + "px";
                 e.style.animationDuration = duration + "s";
                 l.appendChild(e);
             }
 
+            // Tự động xóa element để giải phóng bộ nhớ
             setTimeout(() => e.remove(), (duration + 2) * 1000);
-            return duration; 
+            
+            return duration; // Trả về thời gian thực tế của bình luận này
         }
 
-        const SCRIPT_URL = 'DÁN_LINK_GOOGLE_SCRIPT_CỦA_CHỒNG_VÀO_ĐÂY'; 
+        // Tải lời chúc từ Google Sheet khi vào trang
         if (typeof SCRIPT_URL !== 'undefined' && SCRIPT_URL.includes("http")) {
             fetch(SCRIPT_URL)
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'success' && data.data.length > 0) {
+                    // Trộn dữ liệu thật vào pool
                     data.data.forEach(row => wishesPool.push({name: row[1], msg: row[2]}));
                 }
             })
             .catch(err => console.log("Chưa kết nối DB"));
         }
 
+        // Dùng hàm đệ quy thay cho setInterval để kiểm soát khoảng cách xuất hiện
         function spawnComment() {
             let nextDelay = 2000; // PC chạy dồn dập hơn (cách nhau 2s)
             const currentIsMobile = window.innerWidth < 768;
@@ -625,10 +638,12 @@
                     nextDelay = (duration * 1000) * 0.45; 
                 }
             } else {
+                // Nếu mảng lời chúc chưa tải xong, kiểm tra lại sau 1s
                 nextDelay = 1000;
             }
             setTimeout(spawnComment, nextDelay);
         }
+        // Bắt đầu vòng lặp
         spawnComment();
         
         // --- SEND WISH ---
