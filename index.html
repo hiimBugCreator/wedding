@@ -492,8 +492,29 @@
         }
 
         function toggleMusic(){var m=document.getElementById("bgMusic"),i=document.getElementById("musicIcon");m.paused?(m.play(),i.classList.remove("fa-music"),i.classList.add("fa-pause")):(m.pause(),i.classList.remove("fa-pause"),i.classList.add("fa-music"))}
-        let scrollSpeed=1,isStopped=!1;function autoScroll(){isStopped||window.scrollBy(0,scrollSpeed);(window.innerHeight+window.scrollY)<document.body.offsetHeight&&requestAnimationFrame(autoScroll)}
-        ['mousedown','touchstart','wheel','click'].forEach(e=>window.addEventListener(e,()=>{isStopped=!0;setTimeout(()=>isStopped=!1,4000)}));
+        
+        let scrollSpeed = 1; 
+        let isStopped = false;
+        let scrollTimer;
+
+        function autoScroll() {
+            // Sử dụng documentElement.scrollHeight để tính chính xác chiều cao trên mobile
+            if (!isStopped && (window.scrollY + window.innerHeight) < document.documentElement.scrollHeight) {
+                window.scrollBy(0, scrollSpeed);
+            }
+            requestAnimationFrame(autoScroll);
+        }
+
+        // Ngừng cuộn khi khách chạm, vuốt hoặc lăn chuột
+        ['mousedown', 'touchstart', 'touchmove', 'wheel'].forEach(evt => {
+            window.addEventListener(evt, () => {
+                isStopped = true;
+                clearTimeout(scrollTimer); // Reset lại bộ đếm nếu khách tiếp tục vuốt
+                scrollTimer = setTimeout(() => {
+                    isStopped = false; // Tự động cuộn lại sau 3.5 giây không thao tác
+                }, 3500); 
+            }, { passive: true });
+        });
         
         // 4. MƯA HOA (FIXED: DÙNG PIXEL & RESPONSIVE TỐC ĐỘ)
         const items=["🌹","🥀","🍃","✨","❤", "💕"];
